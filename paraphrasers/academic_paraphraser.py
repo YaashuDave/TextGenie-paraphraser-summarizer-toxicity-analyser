@@ -1,41 +1,54 @@
+
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import nltk
+import torch
 
-nltk.download("punkt")
-
-# Initialize model and tokenizer
-model_name = "t5-small"  # Lightweight T5 model for academic paraphrasing
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-
-def clean_output(text):
+def academic_paraphraser(paragraph, model_name="Vamsi/T5_Paraphrase_Paws", num_return_sequences=5):
     """
-    Cleans the output by ensuring proper sentence segmentation.
-    """
-    sentences = nltk.sent_tokenize(text)
-    return " ".join(sentences[:-1]) if not text.endswith(".") else text
+    Paraphrase the given paragraph using the T5 model.
 
-def casual_paraphraser(text, max_length=150):
-    """
-    Paraphrase text with an academic style using the T5 model.
-    :param text: The input text to paraphrase.
-    :param max_length: Maximum length of the paraphrased text.
-    :return: Paraphrased text.
-    """
-    input_length = len(text.split())
-    dynamic_max_length = min(max_length, input_length * 2)  # Adjust max length dynamically
+    Args:
+        paragraph (str): The paragraph to be paraphrased.
+        num_return_sequences (int): The number of paraphrased sequences to return. Default is 5.
 
-    prompt = f"paraphrase: {text}"
-    inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
+    Returns:
+        list: A list of paraphrased versions of the input paragraph.
+    """
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+
+    text = "paraphrase: " + paragraph + " </s>"
+
+    encoding = tokenizer.encode_plus(text, pad_to_max_length=True, return_tensors="pt")
+    input_ids, attention_masks = encoding["input_ids"].to(device), encoding["attention_mask"].to(device)
+
     outputs = model.generate(
-        inputs.input_ids,
-        max_length=dynamic_max_length,
-        min_length=int(dynamic_max_length * 0.7),
-        no_repeat_ngram_size=2,
-        num_beams=4,
-        length_penalty=1.1,
-        early_stopping=True
+        input_ids=input_ids, attention_mask=attention_masks,
+        max_length=256,
+        do_sample=True,
+        top_k=200,
+        top_p=0.95,
+        early_stopping=True,
+        num_return_sequences=num_return_sequences
     )
-    result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return clean_output(result)
+
+    paraphrased_versions = []
+    for output in outputs:
+        line = tokenizer.decode(output, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+        paraphrased_versions.append(line)
+
+    return paraphrased_versions
+
+# Example usage
+if __name__ == "__main__":
+    paragraph = "This is something which I cannot understand at all. The process seems very complicated and unclear to me."
+    paraphrased = academic_paraphraser(paragraph, num_return_sequences=3)
+    print("Original Paragraph:", paragraph)
+    print("Paraphrased Versions:")
+    for i, p in enumerate(paraphrased, 1):
+        print(f"{i}st paraphrase: {p}")
+
+
 

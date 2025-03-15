@@ -1,0 +1,2 @@
+from paraphrasers.academic_paraphraser import academic_paraphraser
+from paraphrasers.casual_paraphraser import casual_paraphraser

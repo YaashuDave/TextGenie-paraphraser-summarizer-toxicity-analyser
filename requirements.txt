@@ -1,0 +1,10 @@
+streamlit
+transformers
+nltk
+scikit-learn
+networkx
+transformers
+torch
+pickle
+io
+utils

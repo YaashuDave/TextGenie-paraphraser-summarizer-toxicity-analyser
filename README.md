@@ -23,7 +23,7 @@ Subsets of the following datasets were used due to GPU memory limitations:
 
 ---
 
-## 🧠 Model Architecture: BERT + Kim CNN
+## Model Architecture: BERT + Kim CNN
 
 ### 🔹 BERT
 - Pretrained transformer model for generating contextual embeddings.

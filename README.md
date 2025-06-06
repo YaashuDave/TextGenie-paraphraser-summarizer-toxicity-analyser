@@ -1,7 +1,7 @@
 # TextGenie-paraphraser-summarizer-toxicity-analyser
 TextGenie offers a seamless, user-friendly  platform for paraphrasing, summarization, and toxicity detection. With the ability to process and  transform text effectively, TextGenie brings together state-of-the-art NLP models and robust architectures to provide a comprehensive toolkit for text manipulation and analysis. 
 
-# 🔬 Toxicity Detection using BERT + Kim CNN
+# Toxicity Detection using BERT + Kim CNN
 
 > **Note**: This work was carried out as part of a team project.  
 > I (Yaashu Dave) performed all tasks related to toxicity detection using the BERT + Kim CNN model, including data processing, modeling, training, and evaluation.  
